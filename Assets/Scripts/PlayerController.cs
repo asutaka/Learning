@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     private float speed = 1000;
     private Rigidbody rb;
     private bool isFlat = true;
+    public int Tag;
     private void Start()
     {
         // Disable screen dimming
