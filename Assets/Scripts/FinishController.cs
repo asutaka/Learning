@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using Facebook.Unity;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,12 +12,13 @@ public class FinishController : MonoBehaviour {
     public Text txtScore;
     public Text txtTime;
     public Button btnNextScene;
+    public Button btnShare;
     private int count;
     private float timeLeft = 180;
     private bool hasCompleted = false;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         dicDone = new Dictionary<int, bool>();
         dicDone.Add(1,false);
         dicDone.Add(2, false);
@@ -28,10 +29,33 @@ public class FinishController : MonoBehaviour {
 
         btnNextScene.gameObject.SetActive(false);
         btnNextScene.onClick.AddListener(delegate () { this.ButtonClicked(); });
+
+        //btnShare.gameObject.SetActive(false);
+        btnShare.onClick.AddListener(delegate () { this.ButtonShareClicked(); });
+
+        FB.Init();
     }
     private void ButtonClicked()
     {
         SceneManager.LoadScene(1);
+    }
+    private void ButtonShareClicked()
+    {
+        FB.ShareLink(
+            contentTitle: string.Format("I scored {0} on Mazing Balls. Can you beat my score?", txtScore.text),
+            contentURL: null,//new System.Uri("https://play.google.com/store/apps/details?id=com.flash.football"),
+            photoURL: new System.Uri("http://i.imgur.com/mQLDue5.png"),
+            contentDescription: "Try to click the ball to score a point. It is harder than it looks. Click to learn more.",
+            callback: OnShare);
+    }
+    private void OnShare(IShareResult result)
+    {
+        if (result.Cancelled || !string.IsNullOrEmpty(result.Error))
+            Debug.Log("Share error: " + result.Error);
+        else if (!string.IsNullOrEmpty(result.Error))
+            Debug.Log(result.PostId);
+        else
+            Debug.Log("Success");
     }
     private void Update()
     {
@@ -114,6 +138,7 @@ public class FinishController : MonoBehaviour {
             txtWin.text = "You Win!";
             hasCompleted = true;
             btnNextScene.gameObject.SetActive(true);
+            btnShare.gameObject.SetActive(true);
         }
     }
 }
